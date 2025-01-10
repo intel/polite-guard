@@ -4,7 +4,7 @@ import random
 import re
 import sys
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import pandas as pd
 from huggingface_hub import login
@@ -45,7 +45,7 @@ def read_token() -> None:
     login(token)
 
 
-def parse_string(input_string: str) -> tuple[str, str]:
+def parse_string(input_string: str) -> Tuple[str, str]:
     """
     Parses a string containing `OUTPUT:` and `REASONING:` sections and extracts their values.
 
@@ -53,7 +53,7 @@ def parse_string(input_string: str) -> tuple[str, str]:
         input_string (str): The input string containing `OUTPUT:` and `REASONING:` labels.
 
     Returns:
-        tuple[str, str]: A tuple containing two strings:
+        Tuple[str, str]: A tuple containing two strings:
                          - The content following `OUTPUT:`.
                          - The content following `REASONING:`.
 

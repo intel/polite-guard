@@ -213,12 +213,32 @@ class TextDataset(Dataset):
         tokenizer: PreTrainedTokenizer,
         max_length: int = 512,
     ):
+        """
+        Initialize the class with data, tokenizer, and optional max_length.
+
+        Args:
+            data (Union[pd.DataFrame, List[str]]): The input data, either as a pandas DataFrame or a list of strings.
+            tokenizer (PreTrainedTokenizer): The tokenizer used for processing text data.
+            max_length (int, optional): The maximum length for tokenized sequences. Defaults to 512.
+
+        Attributes:
+            data: The input data, either a pandas DataFrame or a list of strings.
+            tokenizer: The tokenizer for processing text.
+            max_length: The maximum length for tokenized sequences.
+            is_dataframe (bool): A flag indicating whether the data is a pandas DataFrame (True) or a list of strings (False).
+        """
         self.data = data
         self.tokenizer = tokenizer
         self.max_length = max_length
         self.is_dataframe = hasattr(data, "iloc")  # Check if the data is a dataframe
 
     def __len__(self) -> int:
+        """
+        Return the number of elements in the data.
+
+        Returns:
+            int: The length of the dataframe or list.
+        """
         return len(self.data)
 
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
@@ -334,6 +354,28 @@ class LightningModel(L.LightningModule):
         weight_decay: float = 0.01,
         num_labels: int = 4,
     ):
+        """
+        Initialize the model for sequence classification with hyperparameters and metrics.
+
+        Args:
+            model (AutoModelForSequenceClassification): The pre-trained model for sequence classification.
+            num_training_steps (int): The total number of training steps.
+            learning_rate (float, optional): The learning rate for the optimizer. Defaults to 5e-5.
+            weight_decay (float, optional): The weight decay for the optimizer. Defaults to 0.01.
+            num_labels (int, optional): The number of labels for classification. Defaults to 4.
+
+        Attributes:
+            model: The pre-trained model for sequence classification.
+            num_training_steps: The total number of training steps.
+            learning_rate: The learning rate for the optimizer.
+            weight_decay: The weight decay for the optimizer.
+            num_labels: The number of labels for classification.
+            f1_score: The F1 score metric for evaluation, weighted by class.
+            val_f1: The F1 score metric for validation, weighted by class.
+            test_f1: The F1 score metric for test, weighted by class.
+            val_acc: The accuracy metric for validation.
+            test_acc: The accuracy metric for test.
+        """
         super().__init__()
         self.save_hyperparameters(ignore=["model"])
         self.model = model
@@ -364,14 +406,25 @@ class LightningModel(L.LightningModule):
         attention_mask: torch.Tensor,
         labels: Optional[torch.Tensor] = None,
     ) -> Dict:
+        """
+        Forward pass through the model.
+
+        Args:
+            input_ids (torch.Tensor): Input tensor containing token IDs.
+            attention_mask (torch.Tensor): Tensor indicating the attention mask for padding tokens.
+            labels (Optional[torch.Tensor], optional): Labels for computing loss. Default is None.
+
+        Returns:
+            Dict: Output of the model.
+        """
         return self.model(input_ids, attention_mask=attention_mask, labels=labels)
 
-    def step(self, batch: dict, stage: str) -> Optional[torch.Tensor]:
+    def step(self, batch: Dict, stage: str) -> Optional[torch.Tensor]:
         """
         A single step function for training, validation, and testing.
 
         Args:
-            batch (dict): A batch of data containing 'input_ids', 'attention_mask', and 'label'.
+            batch (Dict): A batch of data containing 'input_ids', 'attention_mask', and 'label'.
             stage (str): One of "train", "val", or "test" to indicate the current phase.
 
         Returns:
@@ -413,16 +466,47 @@ class LightningModel(L.LightningModule):
             self.log("test_acc", self.test_acc.compute(), prog_bar=True)
             self.log("test_f1", self.test_f1.compute(), prog_bar=True)
 
-    def training_step(self, batch: dict, batch_idx: int) -> torch.Tensor:
+    def training_step(self, batch: Dict, batch_idx: int) -> torch.Tensor:
+        """
+        Perform a training step.
+
+        Args:
+            batch (Dict): A batch of data, containing input tensors and labels.
+            batch_idx (int): The index of the batch.
+
+        Returns:
+            torch.Tensor: The loss value for this step that is sent to the optimizer.
+        """
         return self.step(batch, "train")
 
-    def validation_step(self, batch: dict, batch_idx: int) -> None:
+    def validation_step(self, batch: Dict, batch_idx: int) -> None:
+        """
+        Perform a validation step.
+
+        Args:
+            batch (Dict): A batch of validation data.
+            batch_idx (int): The index of the batch.
+        """
         self.step(batch, "val")
 
-    def test_step(self, batch: dict, batch_idx: int) -> None:
+    def test_step(self, batch: Dict, batch_idx: int) -> None:
+        """
+        Perform a test step.
+
+        Args:
+            batch (Dict): A batch of test data.
+            batch_idx (int): The index of the batch.
+        """
         self.step(batch, "test")
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> Tuple[List[torch.optim.AdamW], List[Dict]]:
+        """
+        Configure the optimizer and learning rate scheduler.
+
+        Returns:
+            Tuple[List[torch.optim.AdamW], List[Dict]]: A tuple containing a list of the optimizer(s)
+            and a list of learning rate scheduler configurations.
+        """
         optimizer = torch.optim.AdamW(
             self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay
         )
