@@ -76,14 +76,14 @@ prompt_examples = "Examples for the Few-Shot Chain-of-Thought prompt."
 
 ### `read_token() -> None`
 
-Reads a Hugging Face token from a file named 'token.txt' and logs in using the token. (See (#article) to learn how to create and access your Hugging Face token.)
+Reads a Hugging Face token from a file named 'token.txt' and logs in using the token. (See [Article](#article) to learn how to create and access your Hugging Face token.)
 
 The file is expected to be located in the same directory as the script. If the file is missing, inaccessible, or another error occurs, the program will terminate with an appropriate error message.
 
 #### Raises:
 - `SystemExit`: If the token file is not found, permission is denied, or any other error occurs while reading the file.
 
-### `parse_string(input_string: str) -> tuple[str, str]`
+### `parse_string(input_string: str) -> Tuple[str, str]`
 
 Parses a string containing `OUTPUT:` and `REASONING:` sections and extracts their values.
 
