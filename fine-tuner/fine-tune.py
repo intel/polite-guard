@@ -86,7 +86,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=16,
+        default=32,
         help="Batch size for training and evaluation",
     )
     parser.add_argument(
@@ -96,7 +96,19 @@ def parse_args() -> argparse.Namespace:
         "--weight_decay", type=float, default=0.01, help="Weight decay for optimizer"
     )
     parser.add_argument(
-        "--max_epochs", type=int, default=6, help="Number of epochs for training"
+        "--max_epochs", type=int, default=2, help="Number of epochs for training"
+    )
+    parser.add_argument(
+        "--patience",
+        type=int,
+        default=3,
+        help="The number of epochs with no improvement in the monitored metric after which training will be stopped.",
+    )
+    parser.add_argument(
+        "--min_delta",
+        type=float,
+        default=0.0,
+        help="The minimum change in the monitored metric to qualify as an improvement.",
     )
     parser.add_argument(
         "--precision",
@@ -558,7 +570,13 @@ def main() -> None:
     # Setup callbacks and logger
     callbacks = [
         ModelCheckpoint(save_top_k=1, mode="max", monitor="val_f1"),
-        EarlyStopping(monitor="val_f1", patience=3, mode="max", verbose=True),
+        EarlyStopping(
+            monitor="val_f1",
+            patience=args.patience,
+            min_delta=args.min_delta,
+            mode="max",
+            verbose=True,
+        ),
     ]
     logger = TensorBoardLogger(save_dir=args.log_dir, name=args.experiment_name)
 
