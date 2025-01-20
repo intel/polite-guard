@@ -532,6 +532,20 @@ class LightningModel(L.LightningModule):
         }
         return [optimizer], [lr_scheduler]
 
+    def on_validation_epoch_start(self) -> None:
+        """
+        Resets the validation accuracy and F1 score metrics at the start of each validation epoch.
+        """
+        self.val_acc.reset()
+        self.val_f1.reset()
+
+    def on_test_epoch_start(self) -> None:
+        """
+        Resets the test accuracy and F1 score metrics at the start of each test epoch.
+        """
+        self.test_acc.reset()
+        self.test_f1.reset()
+
 
 def main() -> None:
     """
