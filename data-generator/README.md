@@ -83,6 +83,13 @@ The file is expected to be located in the same directory as the script. If the f
 #### Raises:
 - `SystemExit`: If the token file is not found, permission is denied, or any other error occurs while reading the file.
 
+### validate_positive_integer(value: str) -> int
+
+Validates that the input string, provided via command-line arguments, represents a positive integer.
+
+#### Raises:
+- `argparse.ArgumentTypeError`: If the input is not a positive integer.
+
 ### `parse_string(input_string: str) -> Tuple[str, str]`
 
 Parses a string containing `OUTPUT:` and `REASONING:` sections and extracts their values.
