@@ -45,11 +45,13 @@ python fine-tune.py --train_data path/to/train.csv --val_data path/to/val.csv --
 - `--train_data`: Path to the training CSV file (required)
 - `--val_data`: Path to the validation CSV file (required)
 - `--test_data`: Path to the test CSV file (required)
-- `--batch_size`: Batch size for training and evaluation (default: 16)
+- `--batch_size`: Batch size for training and evaluation (default: 32)
 - `--learning_rate`: Learning rate for the optimizer (default: 5e-5)
 - `--weight_decay`: Weight decay for the optimizer (default: 0.01)
-- `--max_epochs`: Number of epochs for training (default: 6)
+- `--max_epochs`: Number of epochs for training (default: 2)
 - `--precision`: Precision for training (e.g., '16-mixed') (default: '16-mixed')
+- `--patience`: Number of epochs with no improvement in the monitored metric after which training will be stopped (default: 3)
+- `--min_delta`: Minimum change in the monitored metric to qualify as an improvement (default: 0.0)
 - `--num_workers`: Number of worker threads for DataLoader (default: 6)
 - `--accelerator`: Type of accelerator to use for training. Options include 'cpu', 'gpu', 'hpu', 'tpu', 'mps', and 'auto' (default: 'auto')
 - `--devices`: Number of devices to use for training (default: 'auto')
@@ -87,7 +89,8 @@ python fine-tune.py \
     --num_labels 2 \
     --batch_size 32 \
     --learning_rate 3e-5 \
-    --max_epochs 10 \
+    --max_epochs 3 \
+    --min_delta 0.005\
     --log_dir ./logs \
     --experiment_name my_experiment
 ```
@@ -96,11 +99,17 @@ This command will fine-tune a BERT model on the specified training data, validat
 
 ## Functions and Classes
 
-## Functions and Classes
-
 ### `parse_devices(value: str) -> str | int`
 
 Parses the devices argument for the number of devices to use for training. The argument can either be an integer, representing the number of devices, or the string 'auto', which automatically selects the available devices.
+
+### `validate_positive_integer(value: str) -> int`
+
+Validates that the input is a positive integer.
+
+### `validate_positive_float(value: str) -> float`
+
+Validates that the input is a positive float.
 
 ### `parse_args() -> argparse.Namespace`
 

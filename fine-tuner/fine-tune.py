@@ -46,6 +46,54 @@ def parse_devices(value: str) -> str | int:
         )
 
 
+def validate_positive_integer(value: str) -> int:
+    """
+    Validate that the input is a positive integer.
+
+    Args:
+        value: The input string from argparse
+
+    Returns:
+        int: The validated integer value
+
+    Raises:
+        argparse.ArgumentTypeError: If validation fails
+    """
+    try:
+        int_value = int(value)
+        if int_value <= 0:
+            raise argparse.ArgumentTypeError(
+                f"The input value must be positive, got {int_value}"
+            )
+        return int_value
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"Invalid integer value: {value}")
+
+
+def validate_positive_float(value: str) -> float:
+    """
+    Validate that the input is a positive float.
+
+    Args:
+        value: The input string from argparse
+
+    Returns:
+        float: The validated float value
+
+    Raises:
+        argparse.ArgumentTypeError: If validation fails
+    """
+    try:
+        float_value = float(value)
+        if float_value <= 0:
+            raise argparse.ArgumentTypeError(
+                f"The input value must be positive, got {float_value}"
+            )
+        return float_value
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"Invalid float value: {value}")
+
+
 def parse_args() -> argparse.Namespace:
     """
     Parse command-line arguments.
@@ -66,7 +114,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--num_labels",
-        type=int,
+        type=validate_positive_integer,
         default=4,
         help="Number of labels in classification task",
     )
@@ -85,18 +133,39 @@ def parse_args() -> argparse.Namespace:
     # Training parameters
     parser.add_argument(
         "--batch_size",
-        type=int,
-        default=16,
+        type=validate_positive_integer,
+        default=32,
         help="Batch size for training and evaluation",
     )
     parser.add_argument(
-        "--learning_rate", type=float, default=5e-5, help="Learning rate for optimizer"
+        "--learning_rate",
+        type=validate_positive_float,
+        default=5e-5,
+        help="Learning rate for optimizer",
     )
     parser.add_argument(
-        "--weight_decay", type=float, default=0.01, help="Weight decay for optimizer"
+        "--weight_decay",
+        type=validate_positive_float,
+        default=0.01,
+        help="Weight decay for optimizer",
     )
     parser.add_argument(
-        "--max_epochs", type=int, default=6, help="Number of epochs for training"
+        "--max_epochs",
+        type=validate_positive_integer,
+        default=2,
+        help="Number of epochs for training",
+    )
+    parser.add_argument(
+        "--patience",
+        type=validate_positive_integer,
+        default=3,
+        help="The number of epochs with no improvement in the monitored metric after which training will be stopped.",
+    )
+    parser.add_argument(
+        "--min_delta",
+        type=float,
+        default=0.0,
+        help="The minimum change in the monitored metric to qualify as an improvement.",
     )
     parser.add_argument(
         "--precision",
@@ -106,13 +175,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--num_workers",
-        type=int,
+        type=validate_positive_integer,
         default=6,
         help="Number of worker threads for DataLoader",
     )
     parser.add_argument(
         "--accelerator",
         type=str,
+        choices=["cpu", "gpu", "hpu", "tpu", "mps", "auto"],
         default="auto",
         help="Type of accelerator to use for training. Options include 'cpu', 'gpu', 'hpu', 'tpu', 'mps', or 'auto' to automatically select the available hardware.",
     )
@@ -520,6 +590,20 @@ class LightningModel(L.LightningModule):
         }
         return [optimizer], [lr_scheduler]
 
+    def on_validation_epoch_start(self) -> None:
+        """
+        Resets the validation accuracy and F1 score metrics at the start of each validation epoch.
+        """
+        self.val_acc.reset()
+        self.val_f1.reset()
+
+    def on_test_epoch_start(self) -> None:
+        """
+        Resets the test accuracy and F1 score metrics at the start of each test epoch.
+        """
+        self.test_acc.reset()
+        self.test_f1.reset()
+
 
 def main() -> None:
     """
@@ -558,7 +642,13 @@ def main() -> None:
     # Setup callbacks and logger
     callbacks = [
         ModelCheckpoint(save_top_k=1, mode="max", monitor="val_f1"),
-        EarlyStopping(monitor="val_f1", patience=3, mode="max", verbose=True),
+        EarlyStopping(
+            monitor="val_f1",
+            patience=args.patience,
+            min_delta=args.min_delta,
+            mode="max",
+            verbose=True,
+        ),
     ]
     logger = TensorBoardLogger(save_dir=args.log_dir, name=args.experiment_name)
 
