@@ -10,7 +10,7 @@ import torchmetrics
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics.classification import F1Score
 from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
-from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.loggers import TensorBoardLogger, WandbLogger
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -194,6 +194,13 @@ def parse_args() -> argparse.Namespace:
     )
 
     # Logging and checkpointing parameters
+    parser.add_argument(
+        "--logger",
+        type=str,
+        choices=["tensorboard", "wandb"],
+        default="tensorboard",
+        help="Logging framework to use. Options are 'tensorboard' or 'wandb'. Default is 'tensorboard'.",
+    )
     parser.add_argument(
         "--log_dir", type=str, default="./logs", help="Directory for saving logs"
     )
@@ -639,7 +646,10 @@ def main() -> None:
             verbose=True,
         ),
     ]
-    logger = TensorBoardLogger(save_dir=args.log_dir, name=args.experiment_name)
+    if args.logger == "tensorboard":
+        logger = TensorBoardLogger(save_dir=args.log_dir, name=args.experiment_name)
+    elif args.logger == "wandb":
+        logger = WandbLogger(save_dir=args.log_dir, project=args.experiment_name)
 
     # Setup trainer
     trainer = L.Trainer(
