@@ -1,6 +1,6 @@
 # Fine-Tuning Language Models for Text Classification
 
-With this package, you can fine-tune a pretrained language model for a text classification task using PyTorch Lightning*, Hugging Face* Transformers, and an accelerator of your choice. You may collect real labeled data for your task, or [generate synthetic data](../data-generator/). For more details, see [Synthetic Data Generation with Language Models: A Practical Guide](https://medium.com/p/0ff98eb226a1). The fine-tuner can be run on the [Intel® Tiber™ AI Cloud](https://cloud.intel.com/) environment, which is equipped with an Intel® Xeon® CPU. This platform provides ample computing resources ensuring smooth execution of your code.
+With this package, you can fine-tune a pretrained language model for a text classification task using PyTorch Lightning*, Hugging Face* Transformers, and an accelerator of your choice. You may collect real labeled data for your task, or [generate synthetic data](../data-generator/). For more details, see [Synthetic Data Generation with Language Models: A Practical Guide](https://medium.com/p/0ff98eb226a1). The fine-tuner can be run on the [Intel® Tiber™ AI Cloud](https://cloud.intel.com/) environment. This platform provides ample computing resources ensuring smooth execution of your code.
 
 ## Table of Contents
 
@@ -55,6 +55,7 @@ python fine-tune.py --train_data path/to/train.csv --val_data path/to/val.csv --
 - `--num_workers`: Number of worker threads for DataLoader (default: 6)
 - `--accelerator`: Type of accelerator to use for training. Options include 'cpu', 'gpu', 'hpu', 'tpu', 'mps', and 'auto' (default: 'auto')
 - `--devices`: Number of devices to use for training (default: 'auto')
+- `--logger`: Logging framework to use. Options are 'tensorboard' or 'wandb' (default: 'tensorboard')
 - `--log_dir`: Directory for saving logs (default: './logs')
 - `--experiment_name`: Name of the experiment (default: None, will be auto-generated according to datetime and specified learning rate and batch size)
 
@@ -91,6 +92,7 @@ python fine-tune.py \
     --learning_rate 3e-5 \
     --max_epochs 3 \
     --min_delta 0.005\
+    --logger wandb
     --log_dir ./logs \
     --experiment_name my_experiment
 ```
