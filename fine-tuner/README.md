@@ -92,7 +92,7 @@ python fine-tune.py \
     --learning_rate 3e-5 \
     --max_epochs 3 \
     --min_delta 0.005\
-    --logger wandb
+    --logger wandb\
     --log_dir ./logs \
     --experiment_name my_experiment
 ```
