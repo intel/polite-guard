@@ -447,7 +447,6 @@ class LightningModel(L.LightningModule):
             learning_rate: The learning rate for the optimizer.
             weight_decay: The weight decay for the optimizer.
             num_labels: The number of labels for classification.
-            f1_score: The F1 score metric for evaluation, weighted by class.
             val_f1: The F1 score metric for validation, weighted by class.
             test_f1: The F1 score metric for test, weighted by class.
             val_acc: The accuracy metric for validation.
@@ -461,9 +460,6 @@ class LightningModel(L.LightningModule):
         self.weight_decay = weight_decay
         self.num_labels = num_labels
 
-        self.f1_score = F1Score(
-            num_classes=self.num_labels, task="multiclass", average="weighted"
-        )
         self.val_f1 = F1Score(
             num_classes=self.num_labels, task="multiclass", average="weighted"
         )
@@ -585,20 +581,6 @@ class LightningModel(L.LightningModule):
             "frequency": 1,
         }
         return [optimizer], [lr_scheduler]
-
-    def on_validation_epoch_start(self) -> None:
-        """
-        Resets the validation accuracy and F1 score metrics at the start of each validation epoch.
-        """
-        self.val_acc.reset()
-        self.val_f1.reset()
-
-    def on_test_epoch_start(self) -> None:
-        """
-        Resets the test accuracy and F1 score metrics at the start of each test epoch.
-        """
-        self.test_acc.reset()
-        self.test_f1.reset()
 
 
 def main() -> None:
