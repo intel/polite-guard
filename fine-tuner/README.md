@@ -4,14 +4,17 @@ With this package, you can fine-tune a pretrained language model for a text clas
 
 ## Table of Contents
 
+- [Article](#article)
 - [Installation](#installation)
 - [Preparation to Run on the Intel Tiber AI Cloud](#preparation-to-run-on-the-intel-tiber-ai-cloud)
 - [Usage](#usage)
 - [Logging and Checkpointing](#logging-and-checkpointing)
 - [Functions and Classes](#functions-and-classes)
-- [Article](#article)
 - [Join the Community](#join-the-community)
 - [License](#license)
+
+## Article
+Visit [How to Fine-Tune Language Models: First Principles to Scalable Performance](https://medium.com/p/78f42b02f112) to learn more about the implementation of this package. For more AI development how-to content, visit [Intel® AI Development Resources](https://www.intel.com/content/www/us/en/developer/topic-technology/artificial-intelligence/overview.html).
 
 ## Installation
 
@@ -136,9 +139,6 @@ A PyTorch Lightning model class for fine-tuning a language model on a classifica
 ### `main() -> None`
 
 The main function that trains and tests the model with user-specified arguments.
-
-## Article
-Visit [How to Fine-Tune Language Models: First Principles to Scalable Performance](https://medium.com/p/78f42b02f112) to learn more about the implementation of this package. For more AI development how-to content, visit [Intel® AI Development Resources](https://www.intel.com/content/www/us/en/developer/topic-technology/artificial-intelligence/overview.html).
 
 ## Join the Community
 If you are interested in exploring other models, join us in the Intel and Hugging Face communities. These models simplify the development and adoption of Generative AI solutions, while fostering innovation among developers worldwide. Here are some ways you can contribute:
