@@ -1,17 +1,20 @@
 # Fine-Tuning Language Models for Text Classification
 
-With this package, you can fine-tune a pretrained language model for a text classification task using PyTorch Lightning*, Hugging Face* Transformers, and an accelerator of your choice. You may collect real labeled data for your task, or [generate synthetic data](../data-generator/). For more details, see [Synthetic Data Generation with Language Models: A Practical Guide](https://medium.com/p/0ff98eb226a1). The fine-tuner can be run on the [Intel® Tiber™ AI Cloud](https://cloud.intel.com/) environment, which is equipped with an Intel® Xeon® CPU. This platform provides ample computing resources ensuring smooth execution of your code.
+With this package, you can fine-tune a pretrained language model for a text classification task using PyTorch Lightning*, Hugging Face* Transformers, and an accelerator of your choice. You may collect real labeled data for your task, or [generate synthetic data](../data-generator/). For more details, see [Synthetic Data Generation with Language Models: A Practical Guide](https://medium.com/p/0ff98eb226a1). The fine-tuner can be run on the [Intel® Tiber™ AI Cloud](https://cloud.intel.com/) environment. This platform provides ample computing resources ensuring smooth execution of your code.
 
 ## Table of Contents
 
+- [Article](#article)
 - [Installation](#installation)
 - [Preparation to Run on the Intel Tiber AI Cloud](#preparation-to-run-on-the-intel-tiber-ai-cloud)
 - [Usage](#usage)
 - [Logging and Checkpointing](#logging-and-checkpointing)
 - [Functions and Classes](#functions-and-classes)
-- [Article](#article)
 - [Join the Community](#join-the-community)
 - [License](#license)
+
+## Article
+Visit [How to Fine-Tune Language Models: First Principles to Scalable Performance](https://medium.com/p/78f42b02f112) to learn more about the implementation of this package. For more AI development how-to content, visit [Intel® AI Development Resources](https://www.intel.com/content/www/us/en/developer/topic-technology/artificial-intelligence/overview.html).
 
 ## Installation
 
@@ -55,6 +58,7 @@ python fine-tune.py --train_data path/to/train.csv --val_data path/to/val.csv --
 - `--num_workers`: Number of worker threads for DataLoader (default: 6)
 - `--accelerator`: Type of accelerator to use for training. Options include 'cpu', 'gpu', 'hpu', 'tpu', 'mps', and 'auto' (default: 'auto')
 - `--devices`: Number of devices to use for training (default: 'auto')
+- `--logger`: Logging framework to use. Options are 'tensorboard' or 'wandb' (default: 'tensorboard')
 - `--log_dir`: Directory for saving logs (default: './logs')
 - `--experiment_name`: Name of the experiment (default: None, will be auto-generated according to datetime and specified learning rate and batch size)
 
@@ -91,6 +95,7 @@ python fine-tune.py \
     --learning_rate 3e-5 \
     --max_epochs 3 \
     --min_delta 0.005\
+    --logger wandb\
     --log_dir ./logs \
     --experiment_name my_experiment
 ```
@@ -134,9 +139,6 @@ A PyTorch Lightning model class for fine-tuning a language model on a classifica
 ### `main() -> None`
 
 The main function that trains and tests the model with user-specified arguments.
-
-## Article
-Visit [How to Fine-Tune Language Models: First Principles to Scalable Performance](https://medium.com/p/78f42b02f112) to learn more about the implementation of this package. For more AI development how-to content, visit [Intel® AI Development Resources](https://www.intel.com/content/www/us/en/developer/topic-technology/artificial-intelligence/overview.html).
 
 ## Join the Community
 If you are interested in exploring other models, join us in the Intel and Hugging Face communities. These models simplify the development and adoption of Generative AI solutions, while fostering innovation among developers worldwide. Here are some ways you can contribute:

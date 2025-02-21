@@ -10,7 +10,7 @@ import torchmetrics
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics.classification import F1Score
 from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
-from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.loggers import TensorBoardLogger, WandbLogger
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -194,6 +194,13 @@ def parse_args() -> argparse.Namespace:
     )
 
     # Logging and checkpointing parameters
+    parser.add_argument(
+        "--logger",
+        type=str,
+        choices=["tensorboard", "wandb"],
+        default="tensorboard",
+        help="Logging framework to use. Options are 'tensorboard' or 'wandb'. Default is 'tensorboard'.",
+    )
     parser.add_argument(
         "--log_dir", type=str, default="./logs", help="Directory for saving logs"
     )
@@ -440,7 +447,6 @@ class LightningModel(L.LightningModule):
             learning_rate: The learning rate for the optimizer.
             weight_decay: The weight decay for the optimizer.
             num_labels: The number of labels for classification.
-            f1_score: The F1 score metric for evaluation, weighted by class.
             val_f1: The F1 score metric for validation, weighted by class.
             test_f1: The F1 score metric for test, weighted by class.
             val_acc: The accuracy metric for validation.
@@ -454,9 +460,6 @@ class LightningModel(L.LightningModule):
         self.weight_decay = weight_decay
         self.num_labels = num_labels
 
-        self.f1_score = F1Score(
-            num_classes=self.num_labels, task="multiclass", average="weighted"
-        )
         self.val_f1 = F1Score(
             num_classes=self.num_labels, task="multiclass", average="weighted"
         )
@@ -489,9 +492,9 @@ class LightningModel(L.LightningModule):
         """
         return self.model(input_ids, attention_mask=attention_mask, labels=labels)
 
-    def step(self, batch: Dict, stage: str) -> Optional[torch.Tensor]:
+    def _shared_step(self, batch: Dict, stage: str) -> Optional[torch.Tensor]:
         """
-        A single step function for training, validation, and testing.
+        A shared step function for training, validation, and testing.
 
         Args:
             batch (Dict): A batch of data containing 'input_ids', 'attention_mask', and 'label'.
@@ -504,37 +507,26 @@ class LightningModel(L.LightningModule):
             batch["input_ids"], batch["attention_mask"], labels=batch["label"]
         )
         logits = outputs["logits"]
+        loss = outputs["loss"]
         labels = batch["label"]
 
         if stage == "train":
-            self.log("train_loss", outputs["loss"])
-            return outputs["loss"]
+            self.log("train_loss", loss)
+            return loss
 
         if stage == "val":
-            self.val_acc.update(logits, labels)
-            self.val_f1.update(logits, labels)
-            self.log_metrics("val")
+            self.val_acc(logits, labels)
+            self.val_f1(logits, labels)
+            self.log("val_acc", self.val_acc, prog_bar=True)
+            self.log("val_f1", self.val_f1, prog_bar=True)
 
         if stage == "test":
-            self.test_acc.update(logits, labels)
-            self.test_f1.update(logits, labels)
-            self.log_metrics("test")
+            self.test_acc(logits, labels)
+            self.test_f1(logits, labels)
+            self.log("test_acc", self.test_acc, prog_bar=True)
+            self.log("test_f1", self.test_f1, prog_bar=True)
 
         return None
-
-    def log_metrics(self, stage: str):
-        """
-        Helper function to log metrics for both validation and test.
-
-        Args:
-            stage (str): Either "val" or "test", indicating the phase for logging metrics.
-        """
-        if stage == "val":
-            self.log("val_acc", self.val_acc.compute(), prog_bar=True)
-            self.log("val_f1", self.val_f1.compute(), prog_bar=True)
-        elif stage == "test":
-            self.log("test_acc", self.test_acc.compute(), prog_bar=True)
-            self.log("test_f1", self.test_f1.compute(), prog_bar=True)
 
     def training_step(self, batch: Dict, batch_idx: int) -> torch.Tensor:
         """
@@ -547,7 +539,7 @@ class LightningModel(L.LightningModule):
         Returns:
             torch.Tensor: The loss value for this step that is sent to the optimizer.
         """
-        return self.step(batch, "train")
+        return self._shared_step(batch, "train")
 
     def validation_step(self, batch: Dict, batch_idx: int) -> None:
         """
@@ -557,7 +549,7 @@ class LightningModel(L.LightningModule):
             batch (Dict): A batch of validation data.
             batch_idx (int): The index of the batch.
         """
-        self.step(batch, "val")
+        self._shared_step(batch, "val")
 
     def test_step(self, batch: Dict, batch_idx: int) -> None:
         """
@@ -567,7 +559,7 @@ class LightningModel(L.LightningModule):
             batch (Dict): A batch of test data.
             batch_idx (int): The index of the batch.
         """
-        self.step(batch, "test")
+        self._shared_step(batch, "test")
 
     def configure_optimizers(self) -> Tuple[List[torch.optim.AdamW], List[Dict]]:
         """
@@ -589,20 +581,6 @@ class LightningModel(L.LightningModule):
             "frequency": 1,
         }
         return [optimizer], [lr_scheduler]
-
-    def on_validation_epoch_start(self) -> None:
-        """
-        Resets the validation accuracy and F1 score metrics at the start of each validation epoch.
-        """
-        self.val_acc.reset()
-        self.val_f1.reset()
-
-    def on_test_epoch_start(self) -> None:
-        """
-        Resets the test accuracy and F1 score metrics at the start of each test epoch.
-        """
-        self.test_acc.reset()
-        self.test_f1.reset()
 
 
 def main() -> None:
@@ -650,7 +628,10 @@ def main() -> None:
             verbose=True,
         ),
     ]
-    logger = TensorBoardLogger(save_dir=args.log_dir, name=args.experiment_name)
+    if args.logger == "tensorboard":
+        logger = TensorBoardLogger(save_dir=args.log_dir, name=args.experiment_name)
+    elif args.logger == "wandb":
+        logger = WandbLogger(save_dir=args.log_dir, project=args.experiment_name)
 
     # Setup trainer
     trainer = L.Trainer(
