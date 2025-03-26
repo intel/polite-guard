@@ -1,0 +1,28 @@
+name: Trivy Scan
+on:
+  workflow_dispatch:
+jobs:
+  Trivy_action:
+    name: Build
+    runs-on: "ubuntu-latest"
+    container:
+      image: amr-registry.caas.intel.com/rbhe-public/trivy-build-agent:latest    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run Trivy vulnerability scanner
+        run: |
+            echo "-------Report----------"
+            trivy fs --list-all-pkgs --timeout 20m --format json --output trivy-report.json .
+            echo "-------Table Report----------"
+            trivy fs --list-all-pkgs --timeout 20m --format table --output trivy-table-report.txt .
+            echo "-------spdx Report----------"
+            trivy fs --list-all-pkgs --timeout 20m --format spdx-json --output trivy-spdx-report.json .
+      - name: Upload Scan artifact to Github
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trivy-reports
+          path: |
+             trivy-report.json
+             trivy-table-report.txt
+             trivy-spdx-report.json
