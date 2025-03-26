@@ -5,32 +5,31 @@ permissions:  # added using https://github.com/step-security/secure-repo
   contents: read
 
 jobs:
-  Trivy_action:
+  build:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
     name: Build
-    runs-on: "ubuntu-latest"
-    container:
-      image: amr-registry.caas.intel.com/rbhe-public/trivy-build-agent:latest    
+    runs-on: ubuntu-latest
     steps:
-      - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
-        with:
-          egress-policy: audit
-
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
-      - name: Run Trivy vulnerability scanner
+        uses: actions/checkout@v4
+
+      - name: Build an image from Dockerfile
         run: |
-            echo "-------Report----------"
-            trivy fs --list-all-pkgs --timeout 20m --format json --output trivy-report.json .
-            echo "-------Table Report----------"
-            trivy fs --list-all-pkgs --timeout 20m --format table --output trivy-table-report.txt .
-            echo "-------spdx Report----------"
-            trivy fs --list-all-pkgs --timeout 20m --format spdx-json --output trivy-spdx-report.json .
-      - name: Upload Scan artifact to Github
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+          docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
         with:
-          name: Trivy-reports
-          path: |
-             trivy-report.json
-             trivy-table-report.txt
-             trivy-spdx-report.json
+          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+          format: 'template'
+          template: '@/contrib/sarif.tpl'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
