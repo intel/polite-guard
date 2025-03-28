@@ -1,34 +1,28 @@
-name: Trivy Scan
+name: Trivy
 on:
   workflow_dispatch:
-permissions:  # added using https://github.com/step-security/secure-repo
-  contents: read
-
+ 
 jobs:
-  build:
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
-    name: Build
+  trivy-scan:
+    name: Trivy Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Build an image from Dockerfile
-        run: |
-          docker build -t docker.io/amr-registry.caas.intel.com/rbhe-public/trivy-build-agent:latest .
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+ 
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: 'docker.io/amr-registry.caas.intel.com/rbhe-public/trivy-build-agent:latest'
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'sarif'
           output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-
+          severity: 'CRITICAL, HIGH, MEDIUM, LOW'
+      - name: Upload trivy results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results
+          path: trivy-results.sarif
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
