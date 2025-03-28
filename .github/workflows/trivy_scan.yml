@@ -1,28 +1,29 @@
-name: Trivy Scan
+name: Trivy
 on:
   workflow_dispatch:
+ 
 jobs:
-  Trivy_action:
-    name: Build
-    runs-on: "ubuntu-latest"
-    container:
-      image: amr-registry.caas.intel.com/rbhe-public/trivy-build-agent:latest    
+  trivy-scan:
+    name: Trivy Scan
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Run Trivy vulnerability scanner
-        run: |
-            echo "-------Report----------"
-            trivy fs --list-all-pkgs --timeout 20m --format json --output trivy-report.json .
-            echo "-------Table Report----------"
-            trivy fs --list-all-pkgs --timeout 20m --format table --output trivy-table-report.txt .
-            echo "-------spdx Report----------"
-            trivy fs --list-all-pkgs --timeout 20m --format spdx-json --output trivy-spdx-report.json .
-      - name: Upload Scan artifact to Github
+        uses: actions/checkout@v4
+ 
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL, HIGH, MEDIUM, LOW'
+      - name: Upload trivy results
         uses: actions/upload-artifact@v4
         with:
-          name: Trivy-reports
-          path: |
-             trivy-report.json
-             trivy-table-report.txt
-             trivy-spdx-report.json
+          name: trivy-results
+          path: trivy-results.sarif
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
