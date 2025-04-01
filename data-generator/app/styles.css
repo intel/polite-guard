@@ -1,0 +1,20 @@
+#header {
+    font-size: 4em; 
+    color: #0071C5;
+    background: linear-gradient(to right, #0071C5, #00BFFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding: 5px; 
+    border-radius: 5px;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn {
+    background-color: #0071C5; 
+    color: white;
+}
+
+.text-center {
+    text-align: center;
+}

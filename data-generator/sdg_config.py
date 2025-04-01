@@ -8,6 +8,7 @@ label_descriptions = """
 
 categories_types = {
     "travel": [
+        "hotel",
         "business",
         "luxury",
         "budget or economy",
@@ -102,7 +103,7 @@ prompt_examples = """
             LABEL: impolite
             CATEGORY: sports clubs
             TYPE: team sports
-            OUTPUT: Oh, you're pissed your kid got benched? Let me break it down for you: your kid fucking sucks at hockey. They skate like a drunk toddler and can't stay on their feet for five seconds.
-            REASONING: This text is extremely impolite due to its aggressive language and personal attacks, including "fucking sucks," and "skate like a drunk toddler".
-            The tone is dismissive, mocking, and blatantly offensive, showing no professionalism or willingness to address the issue constructively.
+            OUTPUT: We might as well be playing with one less person. At least then we wouldn't be expecting anything from you.
+            REASONING: This statement is impolite because it outright dismisses the person's usefulness. It's demeaning and emphasizes that their presence adds 
+            no value, making it deeply discouraging.
             """
