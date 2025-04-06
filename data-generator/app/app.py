@@ -273,18 +273,27 @@ def main() -> None:
                     gr.Markdown("### Use Case")
                     use_case = gr.Textbox(
                         show_label=False,
-                        info="Example. customer service",
+                        placeholder="Describe your use case (e.g., customer service).",
                         autofocus=True,
                     )
                     label_boxes = gr.State([])
-                    gr.Markdown("### Labels")
+                    gr.Markdown(
+                        "### Labels\nUse a colon to separate each label and its description as in 'label: description.'"
+                    )
                     with gr.Row():
                         new_label = gr.Textbox(
                             show_label=False,
-                            info="Example. polite: Text is considerate and shows respect and good manners, often including courteous phrases and a friendly tone.",
-                            placeholder="Use a colon to separate each label and its description.",
                         )
-                        add_label_button = gr.Button("Add", elem_classes="btn", scale=0)
+                        gr.Examples(
+                            examples=[
+                                "polite: Text is considerate and shows respect and good manners, often including courteous phrases and a friendly tone.",
+                                "somewhat polite: Text is generally respectful but lacks warmth or formality, communicating with a decent level of courtesy.",
+                            ],
+                            example_labels=["polite", "somewhat polite"],
+                            inputs=new_label,
+                        )
+
+                    add_label_button = gr.Button("Save Label", elem_classes="btn")
 
                     def add_item(
                         label_boxes: List[Dict[str, str]], new_content: str
@@ -318,13 +327,12 @@ def main() -> None:
                         Args:
                             box_list (List[Dict[str, str]]): A list containing dictionaries representing the categories to render.
                         """
-                        with gr.Accordion(
-                            f"Number of Entered Labels ({len(box_list)})"
-                        ):
+                        with gr.Accordion(f"Saved Labels ({len(box_list)})"):
                             for box in box_list:
                                 with gr.Row():
                                     gr.Textbox(
                                         box["content"],
+                                        lines=2,
                                         show_label=False,
                                         container=False,
                                     )
@@ -350,16 +358,21 @@ def main() -> None:
                                 delete_button.click(delete, None, [label_boxes])
 
                     category_boxes = gr.State([])
-                    gr.Markdown("### Categories")
+                    gr.Markdown(
+                        "### Categories\nUse a colon to separate each category and its subcategories as in 'category: type1, type2.'"
+                    )
                     with gr.Row():
-                        new_category = gr.Textbox(
-                            show_label=False,
-                            info="Example. travel: hotel, airline, train",
-                            placeholder="Use a colon to separate each category and its types.",
+                        new_category = gr.Textbox(show_label=False)
+                        gr.Examples(
+                            examples=[
+                                "travel: hotel, airline, train",
+                                "finance: fees and charges, credit",
+                            ],
+                            example_labels=["travel", "finance"],
+                            inputs=new_category,
                         )
-                        add_category_button = gr.Button(
-                            "Add", elem_classes="btn", scale=0
-                        )
+
+                    add_category_button = gr.Button("Save Category", elem_classes="btn")
                     add_category_button.click(
                         add_item,
                         [category_boxes, new_category],
@@ -374,9 +387,7 @@ def main() -> None:
                         Args:
                             box_list (List[Dict[str, str]]): A list containing dictionaries representing the categories to render.
                         """
-                        with gr.Accordion(
-                            f"Number of Entered Categories ({len(box_list)})"
-                        ):
+                        with gr.Accordion(f"Saved Categories ({len(box_list)})"):
                             for box in box_list:
                                 with gr.Row():
                                     gr.Textbox(
@@ -384,9 +395,9 @@ def main() -> None:
                                         show_label=False,
                                         container=False,
                                     )
-                                delete_button = gr.Button(
-                                    "Delete", scale=0, variant="stop"
-                                )
+                                    delete_button = gr.Button(
+                                        "Delete", scale=0, variant="stop"
+                                    )
 
                                 def delete(
                                     box: Dict[str, str] = box,
@@ -406,20 +417,36 @@ def main() -> None:
                                 delete_button.click(delete, None, [category_boxes])
 
                     gr.Markdown(
-                        "### Guiding Examples",
+                        "### Guiding Examples\nInclude all examples in this box. For each example, provide a LABEL, CATEGORY, TYPE, OUTPUT, and REASONING."
                     )
-                    prompt_examples = gr.Textbox(
-                        show_label=False,
-                        info="""Example.
-LABEL: polite
+                    with gr.Row():
+                        prompt_examples = gr.Textbox(
+                            show_label=False,
+                        )
+                        gr.Examples(
+                            label="Example",
+                            examples=[
+                                """LABEL: polite
 CATEGORY: food and drink
 TYPE: cafe
 OUTPUT: Thank you for visiting! While we prepare your coffee, feel free to relax or browse our selection of pastries. Let us know if we can make your day even better!
-REASONING: This text is polite because it expresses gratitude and encourages the customer to feel at ease with a welcoming tone. Phrases like "Let us know if we can make your day even better" show warmth and consideration, enhancing the customer experience.""",
-                        placeholder="Include all examples in this box. Use the format\n'LABEL: label_name\nCATEGORY: category_name\nTYPE: type_name\nOUTPUT: generated_output\nREASONING: reasoning'",
-                        lines=6,
+REASONING: This text is polite because it expresses gratitude and encourages the customer to feel at ease with a welcoming tone. Phrases like "Let us know if we can make your day even better" show warmth and consideration, enhancing the customer experience.
+
+LABEL: somewhat polite
+CATEGORY: travel
+TYPE: train
+OUTPUT: I understand your concern about your booking, and I'll check what options we have for you.
+REASONING: This text would be classified as "somewhat polite." The acknowledgment of the customer's concern shows a basic level of respect. The sentence is direct and lacks additional warmth or formality, but it communicates a willingness to help. The use of "I'll check" is a straightforward commitment to action without additional courteous phrases that would make it fully polite.
+"""
+                            ],
+                            example_labels=["polite and somewhat polite"],
+                            inputs=prompt_examples,
+                        )
+
+                    gr.Markdown(
+                        """### Language Model
+                    Visit [Llama 3.2](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct) and [Gemma 3](https://huggingface.co/google/gemma-3-1b-it), and submit an access request for these gated Hugging Face repositories."""
                     )
-                    gr.Markdown("### Language Model")
                     model = gr.Dropdown(
                         label="Model",
                         choices=[
@@ -430,7 +457,7 @@ REASONING: This text is polite because it expresses gratitude and encourages the
                         value="google/gemma-3-1b-it",
                     )
                     max_new_tokens = gr.Number(
-                        label="Max New Tokens", value=256, minimum=64
+                        label="Maximum Number of New Tokens", value=256, minimum=64
                     )
                     token = gr.Textbox(
                         label="Hugging Face Token",
@@ -443,27 +470,32 @@ REASONING: This text is polite because it expresses gratitude and encourages the
                         elem_classes="text-center",
                     )
                     gr.Markdown("### Status")
-                    status = gr.Textbox(label="Status")
-                    gr.Markdown("### Actions")
+                    status = gr.Textbox(show_label=False)
+                    gr.Markdown(
+                        "### Actions\nEnter the number of rows for the generated dataset, and optionally a Hugging Face repo ID."
+                    )
                     sample_size = gr.Number(label="Sample Size", value=1, minimum=1)
                     save_reasoning = gr.Checkbox(label="Save Reasoning", value=True)
-                    generate_button = gr.Button(
-                        "Generate!", interactive=False, elem_classes="btn"
-                    )
-                    download_button = gr.Button(
-                        "Download CSV", interactive=False, elem_classes="btn"
-                    )
-                    file_output = gr.File(label="Download!", visible=False)
                     repo_id = gr.Textbox(
-                        label="Hugging Face Repo ID",
+                        label="Hugging Face Repo ID (Optional)",
                         placeholder="your-username/your-repo-name",
                     )
                     is_public_repo = gr.Checkbox(
                         label="Make Repository Public", value=False
                     )
-                    push_button = gr.Button(
-                        "Push to Hugging Face", interactive=False, elem_classes="btn"
-                    )
+                    with gr.Row():
+                        generate_button = gr.Button(
+                            "Generate", interactive=False, elem_classes="btn"
+                        )
+                        download_button = gr.Button(
+                            "Download", interactive=False, elem_classes="btn"
+                        )
+                        push_button = gr.Button(
+                            "Push to 🤗",
+                            interactive=False,
+                            variant="huggingface",
+                        )
+                    file_output = gr.File(label="Download", visible=False)
                     gr.Markdown(
                         "### Sample Output",
                     )
@@ -656,7 +688,7 @@ REASONING: This text is polite because it expresses gratitude and encourages the
                         This synthetic data generator, part of Intel's [Polite Guard](https://huggingface.co/Intel/polite-guard) project, utilizes a specified language model to generate synthetic data for a given use case. 
                         If you find this project valuable, please consider giving it a ❤️ on Hugging Face and sharing it with your network.
                         Visit 
-                        - [Polite Guard GitHub repository](https://github.com/intel/polite-guard) for the source code that you can run through the command line, 
+                        - [Polite Guard GitHub repository](https://github.com/intel/polite-guard) for the source code that you can run through the command line on an AI PC or [Intel Tiber AI Cloud](https://ai.cloud.intel.com/), 
                         - [Synthetic Data Generation with Language Models: A Practical Guide](https://medium.com/p/0ff98eb226a1) to learn more about the implementation of this data generator, and
                         - [Polite Guard Dataset](https://huggingface.co/datasets/Intel/polite-guard) for an example of a dataset generated using this data generator.
 
