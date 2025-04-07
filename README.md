@@ -30,7 +30,7 @@ By ensuring respectful and polite interactions on various platforms, Polite Guar
 ## Repository Structure
 
 This repository consists of two main packages:
-1. **data-generator**: A package for generating synthetic datasets.
+1. **data-generator**: A package for generating synthetic datasets, featuring a [companion app](https://huggingface.co/spaces/Intel/synthetic-data-generator).
 2. **fine-tuner**: A package for fine-tuning language models for text classification utilizing Al accelerators.
 
 ## Articles
@@ -102,9 +102,9 @@ for text, output in zip(texts, outputs):
 **Output**
 ```text
 "I sincerely apologize for the inconvenience you've experienced. Please allow me a moment to resolve this for you as quickly as possible.": polite
-"I understand this isn’t ideal, but could we move forward with this solution?": somewhat polite
+"I understand this isn't ideal, but could we move forward with this solution?": somewhat polite
 "The product specifications are as follows.": neutral
-"You must be new here; you clearly don’t know what you’re doing.": impolite
+"You must be new here; you clearly don't know what you're doing.": impolite
 ```
 
 The (train, validation, and test) dataset(s) can be downloaded as follows.
@@ -119,7 +119,7 @@ If you are interested in exploring other models, join us in the Intel and Huggin
 
 ### 1. Star and Share
 
-If you find this project valuable, please give it a star ★ on GitHub and share it with your network. Your support helps us grow the community and reach more contributors.
+If you find this project valuable, please give it a ⭐ on GitHub and share it with your network. Your support helps us grow the community and reach more contributors.
 
 ### 2. Contribute Code or Documentation
 
