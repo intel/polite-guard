@@ -1,12 +1,12 @@
 # Fine-Tuning Language Models for Text Classification
 
-With this package, you can fine-tune a pretrained language model for a text classification task using PyTorch Lightning*, Hugging Face* Transformers, and an accelerator of your choice. You may collect real labeled data for your task, or [generate synthetic data](../data-generator/). For more details, see [Synthetic Data Generation with Language Models: A Practical Guide](https://medium.com/p/0ff98eb226a1). The fine-tuner can be run on the [Intel® Tiber™ AI Cloud](https://cloud.intel.com/) environment. This platform provides ample computing resources ensuring smooth execution of your code.
+With this package, you can fine-tune a pretrained language model for a text classification task using PyTorch Lightning*, Hugging Face* Transformers, and an accelerator of your choice. You may collect real labeled data for your task, or [generate synthetic data](../data-generator/). For more details, see [Synthetic Data Generation with Language Models: A Practical Guide](https://medium.com/p/0ff98eb226a1). The fine-tuner can be run on [Intel® Tiber™ AI Cloud](https://cloud.intel.com/). This platform provides ample computing resources ensuring smooth execution of your code.
 
 ## Table of Contents
 
 - [Article](#article)
 - [Installation](#installation)
-- [Preparation to Run on the Intel Tiber AI Cloud](#preparation-to-run-on-the-intel-tiber-ai-cloud)
+- [Preparation to Run on Intel Tiber AI Cloud](#preparation-to-run-on-intel-tiber-ai-cloud)
 - [Usage](#usage)
 - [Logging and Checkpointing](#logging-and-checkpointing)
 - [Functions and Classes](#functions-and-classes)
@@ -29,7 +29,7 @@ Visit [How to Fine-Tune Language Models: First Principles to Scalable Performanc
     ```
 
 
-## Preparation to Run on the Intel Tiber AI Cloud
+## Preparation to Run on Intel Tiber AI Cloud
 
 1. Visit <https://cloud.intel.com/> and sign up.
 
@@ -104,39 +104,39 @@ This command will fine-tune a BERT model on the specified training data, validat
 
 ## Functions and Classes
 
-### `parse_devices(value: str) -> str | int`
+- `parse_devices(value: str) -> str | int`
 
 Parses the devices argument for the number of devices to use for training. The argument can either be an integer, representing the number of devices, or the string 'auto', which automatically selects the available devices.
 
-### `validate_positive_integer(value: str) -> int`
+- `validate_positive_integer(value: str) -> int`
 
 Validates that the input is a positive integer.
 
-### `validate_positive_float(value: str) -> float`
+- `validate_positive_float(value: str) -> float`
 
 Validates that the input is a positive float.
 
-### `parse_args() -> argparse.Namespace`
+- `parse_args() -> argparse.Namespace`
 
 Parses command-line arguments and returns them as an `argparse.Namespace` object.
 
-### `load_csv(file_path: str) -> pd.DataFrame`
+- `load_csv(file_path: str) -> pd.DataFrame`
 
 Loads a CSV file into a pandas DataFrame and performs checks to ensure it has the necessary columns and that the label column is numeric.
 
-### `TextDataset`
+- `TextDataset`
 
 A custom dataset class for text classification. It can accept either a pandas DataFrame or a list of strings. If a DataFrame is provided, it should have columns "text" (input text) and "label" (numeric labels). If a list of strings is provided, it will be used as the text data, and labels will be None.
 
-### `prepare_data(train_path: str, val_path: str, test_path: str, tokenizer: PreTrainedTokenizer, batch_size: int, num_workers: int) -> Tuple[DataLoader, DataLoader, DataLoader]`
+- `prepare_data(train_path: str, val_path: str, test_path: str, tokenizer: PreTrainedTokenizer, batch_size: int, num_workers: int) -> Tuple[DataLoader, DataLoader, DataLoader]`
 
 Prepares data for training, validation, and testing by loading CSV files and creating corresponding datasets and dataloaders.
 
-### `LightningModel`
+- `LightningModel`
 
 A PyTorch Lightning model class for fine-tuning a language model on a classification task. It includes methods for training, validation, and testing steps, as well as configuring optimizers and logging metrics.
 
-### `main() -> None`
+- `main() -> None`
 
 The main function that trains and tests the model with user-specified arguments.
 
@@ -144,7 +144,7 @@ The main function that trains and tests the model with user-specified arguments.
 If you are interested in exploring other models, join us in the Intel and Hugging Face communities. These models simplify the development and adoption of Generative AI solutions, while fostering innovation among developers worldwide. Here are some ways you can contribute:
 
 ### 1. Star and Share
-If you find this project valuable, please give it a star ★ on GitHub and share it with your network. Your support helps us grow the community and reach more contributors.
+If you find this project valuable, please give it a ⭐ on GitHub and share it with your network. Your support helps us grow the community and reach more contributors.
 
 ### 2. Contribute Code or Documentation
 Help us improve and expand the project by contributing:

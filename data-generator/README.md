@@ -1,17 +1,21 @@
 # Synthetic Data Generation
 
-This open-source package includes a synthetic data generator that uses a language model to create data based on specified categories and labels. By using this package, you can generate your own synthetic data for various use cases, such as training and testing machine learning models. The synthetic data generator can be run on the [Intel® Tiber™ AI Cloud](https://cloud.intel.com/) environment, which is equipped with an Intel® Xeon® CPU. This platform provides ample computing resources ensuring smooth execution of your code.
+This open-source package includes a synthetic data generator and a [companion app](https://huggingface.co/spaces/Intel/synthetic-data-generator) that use a language model to create data based on specified categories and labels. By using this package, you can generate your own synthetic data for various use cases, such as training and testing machine learning models. The synthetic data generator can be run on [Intel® Tiber™ AI Cloud](https://cloud.intel.com/) using an Intel® Xeon® CPU instance. This platform provides ample computing resources ensuring smooth execution of your code.
 
 ## Table of Contents
 
+- [Article](#article)
 - [Installation](#installation)
-- [Preparation to Run on the Intel Tiber AI Cloud](#preparation-to-run-on-the-intel-tiber-ai-cloud)
+- [Preparation to Run on Intel Tiber AI Cloud](#preparation-to-run-on-intel-tiber-ai-cloud)
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [Functions](#functions)
-- [Article](#article)
 - [Join the Community](#join-the-community)
 - [License](#license)
+
+## Article
+
+Visit [Synthetic Data Generation with Language Models: A Practical Guide](https://medium.com/p/0ff98eb226a1) to learn about the implementation of this package. For more AI development how-to content, visit [Intel® AI Development Resources](https://www.intel.com/content/www/us/en/developer/topic-technology/artificial-intelligence/overview.html).
 
 ## Installation
 
@@ -27,7 +31,7 @@ This open-source package includes a synthetic data generator that uses a languag
 
 4. Add your Hugging Face token to a file named `token.txt` in the project directory.
 
-## Preparation to Run on the Intel Tiber AI Cloud
+## Preparation to Run on Intel Tiber AI Cloud
 
 1. Visit <https://cloud.intel.com/> and sign up.
 
@@ -74,43 +78,33 @@ prompt_examples = "Examples for the Few-Shot Chain-of-Thought prompt."
 
 ## Functions
 
-### `read_token() -> None`
+- `read_token() -> None`
 
 Reads a Hugging Face token from a file named 'token.txt' and logs in using the token. (See [Article](#article) to learn how to create and access your Hugging Face token.)
 
 The file is expected to be located in the same directory as the script. If the file is missing, inaccessible, or another error occurs, the program will terminate with an appropriate error message.
 
-#### Raises:
-- `SystemExit`: If the token file is not found, permission is denied, or any other error occurs while reading the file.
-
-### validate_positive_integer(value: str) -> int
+- `validate_positive_integer(value: str) -> int`
 
 Validates that the input string, provided via command-line arguments, represents a positive integer.
 
-#### Raises:
-- `argparse.ArgumentTypeError`: If the input is not a positive integer.
-
-### `parse_string(input_string: str) -> Tuple[str, str]`
+- `parse_string(input_string: str) -> Tuple[str, str]`
 
 Parses a string containing `OUTPUT:` and `REASONING:` sections and extracts their values.
 
-### `sdg(sample_size: int, labels: List[str], label_descriptions: str, categories_types: Dict[str, str], use_case: str, prompt_examples: str, batch_size: int, output_dir: str, model: str, save_reasoning: bool) -> None`
+- `sdg(sample_size: int, labels: List[str], label_descriptions: str, categories_types: Dict[str, str], use_case: str, prompt_examples: str, batch_size: int, output_dir: str, model: str, save_reasoning: bool) -> None`
 
 Generates synthetic data based on specified categories and labels.
 
-### `main()`
+- `main()`
 The main function that parses command-line arguments and runs the synthetic data generator.
-
-## Article
-
-Visit [Synthetic Data Generation with Language Models: A Practical Guide](https://medium.com/p/0ff98eb226a1) to learn more about the implementation of this package. For more AI development how-to content, visit [Intel® AI Development Resources](https://www.intel.com/content/www/us/en/developer/topic-technology/artificial-intelligence/overview.html).
 
 ## Join the Community
 
 If you are interested in exploring other models, join us in the Intel and Hugging Face communities. These models simplify the development and adoption of Generative AI solutions, while fostering innovation among developers worldwide. Here are some ways you can contribute:
 
 ### 1. Star and Share
-If you find this project valuable, please give it a star ★ on GitHub and share it with your network. Your support helps us grow the community and reach more contributors.
+If you find this project valuable, please give it a ⭐ on GitHub and share it with your network. Your support helps us grow the community and reach more contributors.
 
 ### 2. Contribute Code or Documentation
 Help us improve and expand the project by contributing:
