@@ -1,0 +1,137 @@
+<!--
+Chatgpt & Rakshith, K. (2025, January 24). "generate js function to detect a new sentence as user is typing in textbox" [AI-generated code]. Chatgpt https://chatgpt.com
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Journal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #def;
+        }
+        .mainContainer {
+            margin: 40px auto 100px auto;
+            width:500px;
+            text-align: center;
+            background-color: #eee;
+            border: 1px solid #555;
+            border-radius: 10px;
+        }
+        textarea{
+            width:400px;
+            margin: 20px;
+        }
+        #sentenceContainer{
+            padding: 20px;
+            text-align: left;
+            border-top: 1px solid #555;
+            background-color: #fff;
+        }
+        #statsContainer{
+            padding: 20px;
+            text-align: left;
+            border-top: 1px solid #555;
+            text-align: left;
+        }
+        span{
+            line-height: 30px;
+        }
+        .polite {
+            background-color: #cec;
+            padding: 5px;
+            border-radius: 5px;
+            display: inline;
+            margin-right: 5px;
+        }
+        .impolite {
+            background-color: #ecc;
+            padding: 5px;
+            border-radius: 5px;
+            display: inline;
+            margin-right: 5px;
+        }
+        .neutral {
+            background-color: #fe9;
+            padding: 5px;
+            border-radius: 5px;
+            display: inline;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mainContainer">
+        <h1>My Personal Journal</h1>
+        <textarea id="textBox" rows="6" cols="50" placeholder="Start typing..."></textarea>
+        <div id="sentenceContainer"></div>
+        <div id="statsContainer"></div>
+    </div>
+
+    <script type="module">
+
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers';
+        const runner = await pipeline('sentiment-analysis', 'Intel/polite-guard', {dtype: 'fp32', device: 'webgpu'}); 
+
+        const textBox = document.getElementById('textBox');
+        const sentenceContainer = document.getElementById('sentenceContainer');
+        const statsContainer = document.getElementById('statsContainer');
+        const sentences = [];
+        const stats = [];
+
+        function showStats(rating) {
+            stats.push(rating);
+            const total = stats.length;
+            const counts = {};
+
+            // Count occurrences of each string
+            stats.forEach(str => {
+                counts[str] = (counts[str] || 0) + 1;
+            });
+
+            // Calculate percentages and create the result object
+            let statsHtml = '';
+            for (const [key, value] of Object.entries(counts)) {
+                const percentage = ((value / total) * 100).toFixed(2); // Calculate percentage
+                statsHtml += `<span class='${key}'>${key}: ${percentage}%</span><br>`;
+            }
+            statsContainer.innerHTML = statsHtml;
+        }
+
+        async function detect_sentence_classify() {
+            const value = textBox.value;
+            const lastChar = value.slice(-1);
+
+            if (/[.,;:()!?\n]/.test(lastChar)) {
+                const trimmedValue = value.trim();
+                const splitSentences = trimmedValue.split(/(?<=[.,;:()!?\n])/);
+
+                if (splitSentences.length > sentences.length) {
+                    const newSentence = splitSentences[splitSentences.length - 1].trim();
+
+                    if (newSentence) {
+                        sentences.push(newSentence);
+                        
+                        const span = document.createElement('span');
+                        span.textContent = newSentence + ' ';
+                        const output = await runner(newSentence);
+                        span.className = output[0].label;
+                        sentenceContainer.appendChild(span);
+
+                        showStats(output[0].label);
+                    }
+                }
+            }
+        }
+
+        textBox.addEventListener('input', (event) => {
+            detect_sentence_classify()
+        });
+
+    </script>
+</body>
+</html>
