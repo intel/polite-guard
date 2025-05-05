@@ -1,47 +1,26 @@
 import argparse
+import importlib.util
 import os
 import random
 import re
 import sys
 from datetime import datetime
 from typing import Dict, List, Tuple
+from dotenv import load_dotenv
+import getpass
 
 import pandas as pd
 from huggingface_hub import login
 from transformers import pipeline
 
-import sdg_config
-
 
 def read_token() -> None:
     """
-    Reads a Hugging Face token from a file named 'token.txt' and logs in using the token.
-
-    The file is expected to be located in the same directory as the script. If the file
-    is missing, inaccessible, or another error occurs, the program will terminate with
-    an appropriate error message.
-
-    Raises:
-        SystemExit: If the token file is not found, permission is denied, or any
-                    other error occurs while reading the file.
+    Logs into Hugging Face using a token stored in a '.env' file under the key `HF_TOKEN`.
+    If the '.env' file is missing or `HF_TOKEN` is not provided, the user will be prompted to log in.
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(script_dir, "token.txt")
-
-    try:
-        with open(path, "r") as file:
-            token = file.read().strip()
-    except FileNotFoundError:
-        print(f"Error: The token file at {path} was not found.")
-        sys.exit(1)
-    except PermissionError:
-        print(f"Error: Permission denied to read the token file at {path}.")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error reading token file at {path}: {e}")
-        sys.exit(1)
-
-    # Perform the login using the token
+    load_dotenv()
+    token = os.getenv("HF_TOKEN")
     login(token)
 
 
@@ -136,13 +115,14 @@ def sdg(
 
     # Generate filename with current date and time
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, f"{timestamp}.csv")
 
     # If sample_size is not divisible by batch_size, an extra batch is added
     num_batches = (sample_size + batch_size - 1) // batch_size
 
     print(
-        f"\U0001F680  Synthetic data will be appended to {output_path} in {num_batches} batch(es)."
+        f"\U0001f680  Synthetic data will be appended to {output_path} in {num_batches} batch(es)."
     )
 
     for batch in range(num_batches):
@@ -224,7 +204,7 @@ def sdg(
         else:
             # For subsequent batches, append without headers
             batch_df.to_csv(output_path, mode="a", header=False, index=False)
-        print(f"\U000026A1  Saved batch number {batch + 1}/{num_batches}")
+        print(f"\U000026a1  Saved batch number {batch + 1}/{num_batches}")
 
 
 def main() -> None:
@@ -247,6 +227,12 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--config",
+        type=str,
+        default="./config/polite-guard-config.py",
+        help="The configuration file for the sdg function containing labels, categories, and examples (default: ./config/polite-guard-config.py)",
+    )
+    parser.add_argument(
         "--sample_size",
         type=validate_positive_integer,
         default=100,
@@ -255,8 +241,8 @@ def main() -> None:
     parser.add_argument(
         "--model",
         type=str,
-        default="meta-llama/Meta-Llama-3.1-8B-Instruct",
-        help="The language model for data generation (default: meta-llama/Meta-Llama-3.1-8B-Instruct)",
+        default="meta-llama/Llama-3.2-3B-Instruct",
+        help="The language model for data generation (default: meta-llama/Llama-3.2-3B-Instruct)",
     )
     parser.add_argument(
         "--max_new_tokens",
@@ -283,6 +269,22 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+
+    # Dynamically load the configuration module
+    config_path = args.config
+    if not os.path.exists(config_path):
+        print(f"Error: Configuration file not found at {config_path}")
+        sys.exit(1)
+
+    try:
+        spec = importlib.util.spec_from_file_location("config_module", config_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Could not load spec for module at {config_path}")
+        sdg_config = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(sdg_config)
+    except Exception as e:
+        print(f"Error loading configuration from {config_path}: {e}")
+        sys.exit(1)
 
     sdg(
         sample_size=args.sample_size,

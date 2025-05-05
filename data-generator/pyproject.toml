@@ -1,0 +1,13 @@
+[project]
+name = "data-generator-app"
+version = "1.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets>=3.5.0",
+    "dotenv>=0.9.9",
+    "gradio>=5.27.0",
+    "huggingface-hub>=0.30.2",
+    "pandas>=2.2.3",
+    "torch>=2.7.0",
+    "transformers>=4.51.3",
+]
