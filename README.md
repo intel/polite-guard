@@ -11,7 +11,6 @@
 - [Repository Structure](#repository-structure)
 - [Articles](#articles)
 - [Model and Dataset](#model-and-dataset)
-- [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Join the Community](#join-the-community)
 - [License](#license)
@@ -49,33 +48,11 @@ The Polite Guard model and dataset are available on Hugging Face. You can find t
 - [Polite Guard Model on Hugging Face](https://huggingface.co/Intel/polite-guard)
 - [Polite Guard Dataset on Hugging Face](https://huggingface.co/datasets/Intel/polite-guard)
 
-## Getting Started
-
-### Installation
-
-Clone the repository:
-
-```sh
-git clone https://github.com/intel/polite-guard.git
-```
-
-Create and activate a virtual environment. Then install the dependencies for each package:
-
-```sh
-# For data-generator
-cd polite-guard/data-generator
-pip install -r requirements.txt
-
-# For fine-tuner
-cd ../fine-tuner
-pip install -r requirements.txt
-```
-
 ## Usage
 
 ### Data Generator
 
-The `data-generator` package is responsible for generating and synthetic datasets with specified labels and categories. Refer to the [data-generator README](data-generator/README.md) for detailed instructions on how to run this synthetic data generator on the [Intel® Tiber™ AI Cloud](https://cloud.intel.com/).
+The `data-generator` package is responsible for generating and synthetic datasets with specified labels and categories. Refer to the [data-generator README](data-generator/README.md) for detailed instructions on how to run this synthetic data generator on an AI PC or [Intel® Tiber™ AI Cloud](https://cloud.intel.com/).
 
 ### Fine-Tuner
 

@@ -5,8 +5,8 @@ With this package, you can fine-tune a pretrained language model for a text clas
 ## Table of Contents
 
 - [Article](#article)
-- [Installation](#installation)
 - [Preparation to Run on Intel Tiber AI Cloud](#preparation-to-run-on-intel-tiber-ai-cloud)
+- [Installation](#installation)
 - [Usage](#usage)
 - [Logging and Checkpointing](#logging-and-checkpointing)
 - [Functions and Classes](#functions-and-classes)
@@ -16,34 +16,39 @@ With this package, you can fine-tune a pretrained language model for a text clas
 ## Article
 Visit [How to Fine-Tune Language Models: First Principles to Scalable Performance](https://medium.com/p/78f42b02f112) to learn more about the implementation of this package. For more AI development how-to content, visit [Intel® AI Development Resources](https://www.intel.com/content/www/us/en/developer/topic-technology/artificial-intelligence/overview.html).
 
-## Installation
-
-1. Clone the repository.
-
-2. Create a virtual environment and activate it.
-
-3. Install the required packages:
-
-    ```sh
-    pip install -r requirements.txt
-    ```
-
-
 ## Preparation to Run on Intel Tiber AI Cloud
 
 1. Visit <https://cloud.intel.com/> and sign up.
 
 2. Go to the "Learning" tab and click "Connect now" to launch JupyterLab*.
 
+## Installation
+
+1. Clone the repository.
+
+2. Install the `uv` package and project manager either by following the [OS-specific instructions](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer). On Intel Tiber AI Cloud, you can run
+
+    ```sh
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+    in a terminal to install uv.
+
 ## Usage
-To run the fine-tuner script, use a variation of the following command:
+
+To run `fine-tune.py`, navigate to `polite-guard/fine-tuner` and use a variation of the following command:
 
 ```sh
-python fine-tune.py --train_data path/to/train.csv --val_data path/to/val.csv --test_data path/to/test.csv
+uv run fine-tune.py --train_data path/to/train.csv --val_data path/to/val.csv --test_data path/to/test.csv
 ```
+If you prefer to use the `fine-tune.ipynb` notebook rather than the `fine-tune.py` script, create the `ai-project` kernel with:
+
+```sh
+uv run ipython kernel install --user --env VIRTUAL_ENV $(pwd)/.venv --name=ai-project
+```
+
 ### Arguments
 
-- `--model_ckpt`: Pre-trained base model checkpoint (default: `bert-base-uncased`)
+- `--model_ckpt`: Pretrained base model checkpoint (default: `bert-base-uncased`)
 - `--num_labels`: Number of labels in the classification task (default: 4)
 - `--train_data`: Path to the training CSV file (required)
 - `--val_data`: Path to the validation CSV file (required)
