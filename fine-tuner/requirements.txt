@@ -2,5 +2,5 @@ lightning==2.5.0.post0
 pandas==2.2.3
 torch==2.7.0
 transformers==4.51.3
-torchmetrics==1.7.0
+torchmetrics==1.7.1
 wandb==0.19.10
