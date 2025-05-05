@@ -1,0 +1,251 @@
+<!--
+Chatgpt & Rakshith, K. (2025, January 24). "create a html js app in one html file, it should be like a chat app where i can type a message and hitting enter or send button should show up in chat style bubble and generate a dummy reply" [AI-generated code]. Chatgpt https://chatgpt.com
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #111;
+        }
+
+        .main-container {
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #555;
+            border-radius: 10px;
+            max-width:500px;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-height: 0px;
+            padding: 10px;
+            background-color: #f4f4f9;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .message {
+            max-width: 70%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background-color: #e5e5e5;
+            color: #666;
+        }
+
+        .header-container {
+            justify-content: flex-start;
+            text-align:center;
+            font-size: 24px;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            background-color: white;
+        }
+
+        .input-container {
+            display: flex;
+            border-top: 1px solid #ccc;
+            padding: 10px;
+            background-color: white;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dialog {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 90%;
+            width: 300px;
+        }
+        .dialog span {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            word-wrap: break-word;
+            color: #d55;
+        }
+
+        .dialog button {
+            margin: 10px 5px;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .dialog .confirm {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+
+        .dialog .cancel {
+            background-color: #e5e5e5;
+            color: black;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+  <div class="main-container">
+    <div class="header-container" id="header-container">Loading...</div>
+    <div class="chat-container" id="chat-container"></div>
+    <div class="input-container">
+        <input type="text" disabled id="message-input" placeholder="Type a message...">
+        <button id="send-button">Send</button>
+    </div>
+
+    <div class="dialog-overlay" id="dialog-overlay" style="display: none;">
+        <div class="dialog">
+            <span id="impolite-message"></span>
+            <p>You message is not very polite, Are you sure you want to send this message?</p>
+            <button class="confirm" id="confirm-send">Yes</button>
+            <button class="cancel" id="cancel-send">No</button>
+        </div>
+    </div>
+  </div>
+
+    <script type="module">
+        const chatContainer = document.getElementById('chat-container');
+        const headerContainer = document.getElementById('header-container');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const impoliteMessage = document.getElementById('impolite-message');
+        const dialogOverlay = document.getElementById('dialog-overlay');
+        const confirmSend = document.getElementById('confirm-send');
+        const cancelSend = document.getElementById('cancel-send');
+        let pendingMessage = '';
+
+        // Load polite-guard model
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers';
+        const politeGuard = await pipeline('sentiment-analysis', 'Intel/polite-guard', {dtype: 'fp32', device: 'webgpu'}); 
+        headerContainer.textContent = "Messages";
+        messageInput.removeAttribute('disabled');
+
+        function generateRandomString() {
+            let result = '';
+            let spaces = 0;
+
+            while (result.length < Math.floor(Math.random() * 15) + 3) {
+                const isSpace = Math.random() < 0.3 && spaces < 3; // 30% chance for a space
+                if (isSpace && result.length > 0 && result[result.length - 1] !== ' ') {
+                    result += ' ';
+                    spaces++;
+                } else {
+                    result += '█';
+                }
+            }
+            return result;
+        }
+
+        function addMessage(content, type) {
+            const message = document.createElement('div');
+            message.classList.add('message', type);
+            message.textContent = content;
+            chatContainer.appendChild(message);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function handleSendMessage() {
+            const messageText = messageInput.value.trim();
+            if (messageText) {
+                const output = await politeGuard(messageText);
+                if(output[0].label === 'impolite'){
+                    pendingMessage = messageText;
+                    impoliteMessage.innerHTML = pendingMessage;
+                    dialogOverlay.style.display = 'flex';
+                } else {
+                    addMessage(messageText, 'user');
+                    messageInput.value = '';
+                    setTimeout(() => addMessage(generateRandomString(), 'bot'), 500);
+                }
+            }
+        }
+
+        confirmSend.addEventListener('click', () => {
+            addMessage(pendingMessage, 'user');
+            messageInput.value = '';
+            dialogOverlay.style.display = 'none';
+
+            // Simulate a bot response (optional)
+            setTimeout(() => addMessage(generateRandomString(), 'bot'), 500);
+        });
+
+        cancelSend.addEventListener('click', () => {
+            dialogOverlay.style.display = 'none';
+            pendingMessage = '';
+        });
+
+        sendButton.addEventListener('click', handleSendMessage);
+        messageInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                handleSendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
