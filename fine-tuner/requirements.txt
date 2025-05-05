@@ -3,4 +3,4 @@ pandas==2.2.3
 torch==2.7.0
 transformers==4.51.3
 torchmetrics==1.7.0
-wandb==0.19.8
+wandb==0.19.10
