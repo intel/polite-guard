@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <script type="module">
+
+    import { env, pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers';
+
+    // env.allowLocalModels = true
+    // env.allowRemoteModels = false
+    // env.localModelPath = window.location.href.substring(0, window.location.href.lastIndexOf('/'))
+
+    async function classify() {
+      // Setup transformers pipline: model, ep
+      document.getElementById("log").innerHTML = 'Loading Model...';
+      const classifier = await pipeline('sentiment-analysis', 'Intel/polite-guard', {
+        dtype: 'q8',
+        device: 'webnn-gpu',
+      });
+      // Run inference
+      document.getElementById("log").innerHTML += 'Running Inference...';
+      var input = document.getElementById('input').value;
+      const output = await classifier(input);
+      document.getElementById("log").innerHTML += 'Done';
+      // Display output
+      document.getElementById("output").innerHTML = '<i>"' + input + '"</i> is '+ output[0].label
+      console.log(output);
+      console.log(input + ": " + output[0].label);
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('classify').addEventListener('click', (e) => {
+        document.getElementById("output").innerHTML = '';
+        classify();
+      });
+    });          
+    </script>
+  </head>
+  <body>
+    <h1>WebNN</h1>
+    <h3>transformers.js Intel/polite-guard</h3>
+    <input type="text" id="input" value="You look good">
+    <button id="classify" type="button">Classify</button>
+    <p id="log"></p>
+    <h2 id="output"></h2>
+  </body>
+</html>
