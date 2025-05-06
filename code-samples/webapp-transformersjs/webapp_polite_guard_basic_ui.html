@@ -13,7 +13,7 @@
       document.getElementById("log").innerHTML = 'Loading Model...';
       const classifier = await pipeline('sentiment-analysis', 'Intel/polite-guard', {
         dtype: 'q8',
-        device: 'webnn-gpu',
+        device: 'webgpu',
       });
       // Run inference
       document.getElementById("log").innerHTML += 'Running Inference...';
@@ -35,9 +35,8 @@
     </script>
   </head>
   <body>
-    <h1>WebNN</h1>
     <h3>transformers.js Intel/polite-guard</h3>
-    <input type="text" id="input" value="You look good">
+    <input type="text" id="input" value="I like you">
     <button id="classify" type="button">Classify</button>
     <p id="log"></p>
     <h2 id="output"></h2>

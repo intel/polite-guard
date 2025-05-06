@@ -1,14 +1,14 @@
 <html>
   <head></head>
   <body>
-    <h1>WebNN transformers.js Intel/polite-guard</h1>
+    <h1>transformers.js Intel/polite-guard</h1>
     <script type="module">
       import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers';
       const runner = await pipeline('sentiment-analysis', 'Intel/polite-guard', {
         dtype: 'q8',
         device: 'webgpu', // webgpu, webnn, webnn-gpu, webnn-npu, webnn-cpi, wasm
       });
-      var input = "You look good today";
+      var input = "I like you";
       const output = await runner(input);
       console.log(input + ": " + output[0].label);       
       </script>
