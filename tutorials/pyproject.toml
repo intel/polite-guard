@@ -1,0 +1,27 @@
+[project]
+name = "polite-guard"
+version = "1.0.0"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets>=3.5.1",
+    "dotenv>=0.9.9",
+    "gradio>=5.27.0",
+    "huggingface-hub>=0.30.2",
+    "lightning>=2.5.1.post0",
+    "optimum[onnxruntime]==1.24.0",
+    "pandas>=2.2.3",
+    "scikit-learn>=1.6.1",
+    "tensorboard>=2.19.0",
+    "torch>=2.7.0",
+    "torchmetrics>=1.7.1",
+    "transformers==4.48.0",
+    "wandb>=0.19.10",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "ipywidgets>=8.1.6",
+]
+
